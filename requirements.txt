@@ -1,0 +1,6 @@
+nest_asyncio
+uvicorn[standard]
+FastAPI
+pydantic
+httpimport
+pika

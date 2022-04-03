@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="start_event_order_received" name="Order &#10;received">
+      <bpmn:outgoing>SequenceFlow_0icns8n</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0icns8n" sourceRef="start_event_order_received" targetRef="task_get_good_from_stock" />
+    <bpmn:subProcess id="subprocess_purchase" name="Purchase">
+      <bpmn:incoming>SequenceFlow_0tdxnug</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0xubnoq</bpmn:outgoing>
+      <bpmn:startEvent id="start_event_good_to_be_purchased" name="Good to be &#10;purchased">
+        <bpmn:outgoing>SequenceFlow_0htckfp</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:exclusiveGateway id="exclusive_gateway_good_available" name="Good available?">
+        <bpmn:incoming>SequenceFlow_1su4bsy</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_01bpejx</bpmn:outgoing>
+        <bpmn:outgoing>SequenceFlow_1ntlt30</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:intermediateCatchEvent id="intermediate_event_good_received" name="Good &#10;received">
+        <bpmn:incoming>SequenceFlow_01bpejx</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_16mlcdt</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_0pip650" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:endEvent id="end_event_good_purchased" name="Good &#10;purchased">
+        <bpmn:incoming>SequenceFlow_16mlcdt</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:endEvent id="end_event_good_unavailable" name="Good &#10;unavailable">
+        <bpmn:incoming>SequenceFlow_1ntlt30</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0gnqpa4" />
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="SequenceFlow_0htckfp" sourceRef="start_event_good_to_be_purchased" targetRef="task_order_good" />
+      <bpmn:sequenceFlow id="SequenceFlow_1su4bsy" sourceRef="task_order_good" targetRef="exclusive_gateway_good_available" />
+      <bpmn:sequenceFlow id="SequenceFlow_01bpejx" name="Yes" sourceRef="exclusive_gateway_good_available" targetRef="intermediate_event_good_received" />
+      <bpmn:sequenceFlow id="SequenceFlow_1ntlt30" name="No" sourceRef="exclusive_gateway_good_available" targetRef="end_event_good_unavailable" />
+      <bpmn:sequenceFlow id="SequenceFlow_16mlcdt" sourceRef="intermediate_event_good_received" targetRef="end_event_good_purchased" />
+      <bpmn:userTask id="task_order_good" name="Order good">
+        <bpmn:incoming>SequenceFlow_0htckfp</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_1su4bsy</bpmn:outgoing>
+      </bpmn:userTask>
+    </bpmn:subProcess>
+    <bpmn:endEvent id="end_event_order_delivered" name="Order &#10;delivered">
+      <bpmn:incoming>SequenceFlow_1nn1mhf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="boundary_event_good_unavailable" name="Good &#10;unavailable" attachedToRef="subprocess_purchase">
+      <bpmn:outgoing>SequenceFlow_0wep53y</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1nn1mhf" sourceRef="task_deliver_good" targetRef="end_event_order_delivered" />
+    <bpmn:sequenceFlow id="SequenceFlow_12sx1lm" sourceRef="task_get_good_from_stock" targetRef="exclusive_gateway_good_on_stock" />
+    <bpmn:exclusiveGateway id="exclusive_gateway_good_on_stock" name="Good on &#10;stock?">
+      <bpmn:incoming>SequenceFlow_12sx1lm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0tdxnug</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1nqn11z</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0tdxnug" name="No" sourceRef="exclusive_gateway_good_on_stock" targetRef="subprocess_purchase" />
+    <bpmn:sequenceFlow id="SequenceFlow_1nqn11z" name="Yes" sourceRef="exclusive_gateway_good_on_stock" targetRef="task_deliver_good" />
+    <bpmn:sequenceFlow id="SequenceFlow_0xubnoq" sourceRef="subprocess_purchase" targetRef="task_deliver_good" />
+    <bpmn:sequenceFlow id="SequenceFlow_0wep53y" sourceRef="boundary_event_good_unavailable" targetRef="task_inform_customer" />
+    <bpmn:endEvent id="end_event_order_undelivered" name="Order &#10;undelivered">
+      <bpmn:incoming>SequenceFlow_0nlc6hu</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0nlc6hu" sourceRef="task_inform_customer" targetRef="end_event_order_undelivered" />
+    <bpmn:userTask id="task_get_good_from_stock" name="Get good from stock">
+      <bpmn:incoming>SequenceFlow_0icns8n</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_12sx1lm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_inform_customer" name="Inform&#10;customer">
+      <bpmn:incoming>SequenceFlow_0wep53y</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0nlc6hu</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="task_deliver_good" name="Deliver&#10;good">
+      <bpmn:incoming>SequenceFlow_1nqn11z</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0xubnoq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1nn1mhf</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNEdge id="SequenceFlow_0nlc6hu_di" bpmnElement="SequenceFlow_0nlc6hu">
+        <di:waypoint x="800" y="350" />
+        <di:waypoint x="822" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="538" y="304" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0wep53y_di" bpmnElement="SequenceFlow_0wep53y">
+        <di:waypoint x="638" y="350" />
+        <di:waypoint x="700" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="383" y="288.5" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0xubnoq_di" bpmnElement="SequenceFlow_0xubnoq">
+        <di:waypoint x="620" y="210" />
+        <di:waypoint x="750" y="210" />
+        <di:waypoint x="750" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="413.5" y="163" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nqn11z_di" bpmnElement="SequenceFlow_1nqn11z">
+        <di:waypoint x="427" y="120" />
+        <di:waypoint x="700" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="427" y="101" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0tdxnug_di" bpmnElement="SequenceFlow_0tdxnug">
+        <di:waypoint x="402" y="145" />
+        <di:waypoint x="402" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="407" y="141" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_12sx1lm_di" bpmnElement="SequenceFlow_12sx1lm">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="377" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="361" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nn1mhf_di" bpmnElement="SequenceFlow_1nn1mhf">
+        <di:waypoint x="800" y="120" />
+        <di:waypoint x="822" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0icns8n_di" bpmnElement="SequenceFlow_0icns8n">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="240" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="182" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start_event_order_received">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0hvzd67_di" bpmnElement="exclusive_gateway_good_on_stock" isMarkerVisible="true">
+        <dc:Bounds x="377" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="381" y="63" width="43" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18grghu_di" bpmnElement="task_get_good_from_stock">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0ixzpvn_di" bpmnElement="end_event_order_delivered">
+        <dc:Bounds x="822" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="818" y="138" width="45" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07etu2j_di" bpmnElement="task_inform_customer">
+        <dc:Bounds x="700" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1qscssf_di" bpmnElement="end_event_order_undelivered">
+        <dc:Bounds x="822" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="812" y="368" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0a9pz5i_di" bpmnElement="task_deliver_good">
+        <dc:Bounds x="700" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_0tsew75_di" bpmnElement="subprocess_purchase" isExpanded="true">
+        <dc:Bounds x="170" y="180" width="450" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0htckfp_di" bpmnElement="SequenceFlow_0htckfp">
+        <di:waypoint x="228" y="250" />
+        <di:waypoint x="261" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1su4bsy_di" bpmnElement="SequenceFlow_1su4bsy">
+        <di:waypoint x="361" y="250" />
+        <di:waypoint x="397" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_01bpejx_di" bpmnElement="SequenceFlow_01bpejx">
+        <di:waypoint x="447" y="250" />
+        <di:waypoint x="480" y="250" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="453" y="232" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ntlt30_di" bpmnElement="SequenceFlow_1ntlt30">
+        <di:waypoint x="422" y="275" />
+        <di:waypoint x="422" y="311" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="428" y="270" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_16mlcdt_di" bpmnElement="SequenceFlow_16mlcdt">
+        <di:waypoint x="516" y="250" />
+        <di:waypoint x="564" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="start_event_good_to_be_purchased_di" bpmnElement="start_event_good_to_be_purchased">
+        <dc:Bounds x="192" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="183" y="268" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="exclusive_gateway_good_available_di" bpmnElement="exclusive_gateway_good_available" isMarkerVisible="true">
+        <dc:Bounds x="397" y="225" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="385" y="210" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="intermediate_event_good_received_di" bpmnElement="intermediate_event_good_received">
+        <dc:Bounds x="480" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="477" y="268" width="42" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_event_good_purchased_di" bpmnElement="end_event_good_purchased">
+        <dc:Bounds x="564" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="556" y="268" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_event_good_unavailable_di" bpmnElement="end_event_good_unavailable">
+        <dc:Bounds x="404" y="311" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="394" y="347" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cvectx_di" bpmnElement="task_order_good">
+        <dc:Bounds x="261" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BoundaryEvent_1f2zbz0_di" bpmnElement="boundary_event_good_unavailable">
+        <dc:Bounds x="602" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="632" y="356" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

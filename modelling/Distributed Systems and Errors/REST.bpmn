@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_02krpaz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_1j9ugzh">
+    <bpmn:participant id="Participant_11ntkti" name="Payment Service" processRef="Process_1hxvl6h" />
+    <bpmn:participant id="Participant_09q35ab" name="Inventory Service" processRef="Process_10ha191" />
+    <bpmn:participant id="Participant_1dsdbgm" name="Shipment Service" processRef="Process_0hxdta7" />
+    <bpmn:participant id="Order_Fulfillment_REST" name="Order Fulfillment" processRef="Process_0fshcjr" />
+    <bpmn:messageFlow id="Flow_1r3v3mp" name="Command&#10;Response" sourceRef="Activity_1ulhlst" targetRef="Activity_1dh53fv" />
+    <bpmn:messageFlow id="Flow_0jalvsf" name="Command&#10;Response" sourceRef="Activity_0sojmee" targetRef="Activity_0v1mp5r" />
+    <bpmn:messageFlow id="Flow_14s35g7" name="Command&#10;shipGoods" sourceRef="Activity_043dzn0" targetRef="Activity_0w397wh" />
+    <bpmn:messageFlow id="Flow_0p8q44j" name="Command:&#10;retrievePayment" sourceRef="Activity_1dh53fv" targetRef="Activity_1ulhlst" />
+    <bpmn:messageFlow id="Flow_1eq9p94" name="Command:&#10;fetchGoods" sourceRef="Activity_0v1mp5r" targetRef="Activity_0sojmee" />
+    <bpmn:messageFlow id="Flow_0t190bu" name="Command&#10;Response" sourceRef="Activity_0w397wh" targetRef="Activity_043dzn0" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1hxvl6h" isExecutable="false">
+    <bpmn:task id="Activity_1ulhlst" name="Make payment" />
+  </bpmn:process>
+  <bpmn:process id="Process_10ha191" isExecutable="false">
+    <bpmn:task id="Activity_0sojmee" name="Fetch goods" />
+  </bpmn:process>
+  <bpmn:process id="Process_0hxdta7" isExecutable="false">
+    <bpmn:task id="Activity_043dzn0" name="Ship goods" />
+  </bpmn:process>
+  <bpmn:process id="Process_0fshcjr" name="Order Fulfillment REST" isExecutable="true">
+    <bpmn:endEvent id="Event_0vbglbk" name="Order&#10;fulfilled">
+      <bpmn:incoming>Flow_1m7zvr2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_1dh53fv" name="Request payment">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://e789056e-64a4-4a7a-8a84-b1e18aa1b20f.deepnoteproject.com/retrieve_payment/</camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="JavaScript">JSON.stringify({
+  "businessKey": execution.getProcessBusinessKey(),
+  "tenant": execution.getTenantId(),
+  "command": "retrievePayment"
+});</camunda:script>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0fcrbh9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gppwau</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0v1mp5r" name="Fetch goods">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://e789056e-64a4-4a7a-8a84-b1e18aa1b20f.deepnoteproject.com/fetch_goods/</camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="JavaScript">JSON.stringify({
+  "businessKey": execution.getProcessBusinessKey(),
+  "tenant": execution.getTenantId(),
+  "command": "fetchGoods"
+});</camunda:script>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1gppwau</bpmn:incoming>
+      <bpmn:outgoing>Flow_1anaypk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0w397wh" name="Ship goods">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://e789056e-64a4-4a7a-8a84-b1e18aa1b20f.deepnoteproject.com/ship_goods/</camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="JavaScript">JSON.stringify({
+  "businessKey": execution.getProcessBusinessKey(),
+  "tenant": execution.getTenantId(),
+  "command": "shipGoods"
+});</camunda:script>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1anaypk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1m7zvr2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_0ffwc4p" name="Order&#10;placed">
+      <bpmn:outgoing>Flow_0fcrbh9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1m7zvr2" sourceRef="Activity_0w397wh" targetRef="Event_0vbglbk" />
+    <bpmn:sequenceFlow id="Flow_1anaypk" sourceRef="Activity_0v1mp5r" targetRef="Activity_0w397wh" />
+    <bpmn:sequenceFlow id="Flow_1gppwau" sourceRef="Activity_1dh53fv" targetRef="Activity_0v1mp5r" />
+    <bpmn:sequenceFlow id="Flow_0fcrbh9" sourceRef="Event_0ffwc4p" targetRef="Activity_1dh53fv" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1j9ugzh">
+      <bpmndi:BPMNShape id="Participant_11ntkti_di" bpmnElement="Participant_11ntkti" isHorizontal="true">
+        <dc:Bounds x="160" y="300" width="300" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ulhlst_di" bpmnElement="Activity_1ulhlst">
+        <dc:Bounds x="260" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_09q35ab_di" bpmnElement="Participant_09q35ab" isHorizontal="true">
+        <dc:Bounds x="525" y="300" width="300" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0sojmee_di" bpmnElement="Activity_0sojmee">
+        <dc:Bounds x="625" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_1dsdbgm_di" bpmnElement="Participant_1dsdbgm" isHorizontal="true">
+        <dc:Bounds x="890" y="300" width="300" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_043dzn0_di" bpmnElement="Activity_043dzn0">
+        <dc:Bounds x="990" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_1luyn29_di" bpmnElement="Order_Fulfillment_REST" isHorizontal="true">
+        <dc:Bounds x="330" y="100" width="720" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0fcrbh9_di" bpmnElement="Flow_0fcrbh9">
+        <di:waypoint x="408" y="160" />
+        <di:waypoint x="440" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gppwau_di" bpmnElement="Flow_1gppwau">
+        <di:waypoint x="540" y="160" />
+        <di:waypoint x="620" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1anaypk_di" bpmnElement="Flow_1anaypk">
+        <di:waypoint x="720" y="160" />
+        <di:waypoint x="800" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m7zvr2_di" bpmnElement="Flow_1m7zvr2">
+        <di:waypoint x="900" y="160" />
+        <di:waypoint x="992" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0vbglbk_di" bpmnElement="Event_0vbglbk">
+        <dc:Bounds x="992" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="993" y="106" width="34" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1dh53fv_di" bpmnElement="Activity_1dh53fv">
+        <dc:Bounds x="440" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0v1mp5r_di" bpmnElement="Activity_0v1mp5r" bioc:stroke="#000000" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#000000">
+        <dc:Bounds x="620" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w397wh_di" bpmnElement="Activity_0w397wh">
+        <dc:Bounds x="800" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06r7xag_di" bpmnElement="Event_0ffwc4p">
+        <dc:Bounds x="372" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="374" y="106" width="33" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1r3v3mp_di" bpmnElement="Flow_1r3v3mp" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="340" y="320" />
+        <di:waypoint x="340" y="280" />
+        <di:waypoint x="520" y="280" />
+        <di:waypoint x="520" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="464" y="226" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jalvsf_di" bpmnElement="Flow_0jalvsf" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="705" y="320" />
+        <di:waypoint x="705" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="649" y="226" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14s35g7_di" bpmnElement="Flow_14s35g7" bioc:stroke="#1e88e5" bioc:fill="#bbdefb" color:border-color="#1e88e5">
+        <di:waypoint x="1070" y="320" />
+        <di:waypoint x="1070" y="260" />
+        <di:waypoint x="890" y="260" />
+        <di:waypoint x="890" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="753" y="226" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p8q44j_di" bpmnElement="Flow_0p8q44j" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="450" y="200" />
+        <di:waypoint x="450" y="260" />
+        <di:waypoint x="280" y="260" />
+        <di:waypoint x="280" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="359" y="226" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1eq9p94_di" bpmnElement="Flow_1eq9p94" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="630" y="200" />
+        <di:waypoint x="630" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="562" y="226" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0t190bu_di" bpmnElement="Flow_0t190bu" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="810" y="200" />
+        <di:waypoint x="810" y="280" />
+        <di:waypoint x="1000" y="280" />
+        <di:waypoint x="1000" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="226" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
