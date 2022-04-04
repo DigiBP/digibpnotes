@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1gyqd7x" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="Process_1tojqse" isExecutable="true">
+    <bpmn:serviceTask id="ServiceTask_1qfm9vv" name="Request payment" camunda:type="external" camunda:topic="retrievePayment">
+      <bpmn:incoming>Flow_1ue6pmf</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0320wd5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="StartEvent_1m6qtae" name="Order placed">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="amount" label="Order amount" type="string" defaultValue="200" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1ue6pmf</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ServiceTask_0n59pxi" name="Fetch goods" camunda:type="external" camunda:topic="fetchGoods">
+      <bpmn:incoming>SequenceFlow_0320wd5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0bm0orb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_17xyq13" name="Ship goods" camunda:type="external" camunda:topic="shipGoods">
+      <bpmn:incoming>SequenceFlow_0bm0orb</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0pcgdyi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_1da0yf0" name="Order fulfilled">
+      <bpmn:incoming>SequenceFlow_0pcgdyi</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ue6pmf" sourceRef="StartEvent_1m6qtae" targetRef="ServiceTask_1qfm9vv" />
+    <bpmn:sequenceFlow id="SequenceFlow_0320wd5" sourceRef="ServiceTask_1qfm9vv" targetRef="ServiceTask_0n59pxi" />
+    <bpmn:sequenceFlow id="SequenceFlow_0bm0orb" sourceRef="ServiceTask_0n59pxi" targetRef="ServiceTask_17xyq13" />
+    <bpmn:sequenceFlow id="SequenceFlow_0pcgdyi" sourceRef="ServiceTask_17xyq13" targetRef="EndEvent_1da0yf0" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1tojqse">
+      <bpmndi:BPMNEdge id="Flow_1ue6pmf_di" bpmnElement="Flow_1ue6pmf">
+        <di:waypoint x="237" y="120" />
+        <di:waypoint x="290" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0320wd5_di" bpmnElement="SequenceFlow_0320wd5">
+        <di:waypoint x="390" y="120" />
+        <di:waypoint x="533" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bm0orb_di" bpmnElement="SequenceFlow_0bm0orb">
+        <di:waypoint x="633" y="120" />
+        <di:waypoint x="709" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0pcgdyi_di" bpmnElement="SequenceFlow_0pcgdyi">
+        <di:waypoint x="809" y="120" />
+        <di:waypoint x="860" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1qfm9vv_di" bpmnElement="ServiceTask_1qfm9vv">
+        <dc:Bounds x="290" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1m6qtae_di" bpmnElement="StartEvent_1m6qtae">
+        <dc:Bounds x="201" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="188" y="142" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0n59pxi_di" bpmnElement="ServiceTask_0n59pxi">
+        <dc:Bounds x="533" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_17xyq13_di" bpmnElement="ServiceTask_17xyq13">
+        <dc:Bounds x="709" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1da0yf0_di" bpmnElement="EndEvent_1da0yf0">
+        <dc:Bounds x="860" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="845" y="142" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
